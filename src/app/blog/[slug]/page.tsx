@@ -6,7 +6,7 @@ interface PostPageProps {
   params: { slug: string };
 }
 
-export default function BlogPostPage({ params }: PostPageProps) {
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
   const post = blogs.find(b => b.slug === params.slug);
 
   if (!post) {
