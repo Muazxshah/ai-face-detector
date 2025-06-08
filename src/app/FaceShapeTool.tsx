@@ -58,7 +58,7 @@ export default function FaceShapeTool() {
 
   // Laser scan animation
   useEffect(() => {
-    let raf: number;
+    let raf: number | undefined = undefined;
     let start: number | null = null;
     function animate(ts: number) {
       if (!start) start = ts;
@@ -72,10 +72,10 @@ export default function FaceShapeTool() {
     } else {
       setScanActive(false);
       setScanPos(0);
-      if (raf) cancelAnimationFrame(raf);
+      if (raf !== undefined) cancelAnimationFrame(raf);
     }
     return () => {
-      if (raf) cancelAnimationFrame(raf);
+      if (raf !== undefined) cancelAnimationFrame(raf);
     };
   }, [isLoading]);
 
