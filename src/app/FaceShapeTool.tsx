@@ -59,10 +59,10 @@ export default function FaceShapeTool() {
   // Laser scan animation
   useEffect(() => {
     let raf: number;
-    let start: number|null = null;
+    let start: number | null = null;
     function animate(ts: number) {
       if (!start) start = ts;
-      const progress = ((ts - start) / 900) % 1;
+      let progress = ((ts - start) / 900) % 1;
       setScanPos(progress);
       raf = requestAnimationFrame(animate);
     }
@@ -72,9 +72,11 @@ export default function FaceShapeTool() {
     } else {
       setScanActive(false);
       setScanPos(0);
-      if(raf) cancelAnimationFrame(raf);
+      if (raf) cancelAnimationFrame(raf);
     }
-    return () => raf&&cancelAnimationFrame(raf);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, [isLoading]);
 
   // Always stops isLoading and scanActive after n ms
@@ -102,8 +104,9 @@ export default function FaceShapeTool() {
       await Promise.race([modelPromise, timeoutPromise]);
       clearTimeout(timeout as number);
       setModels(true);
-    } catch (e:any) {
-      setError('Face detection models failed to load: ' + (e.message||e));
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      setError(`Face detection models failed to load: ${errMsg}`);
       setIsLoading(false); setScanActive(false);
       throw e;
     }
@@ -130,7 +133,7 @@ export default function FaceShapeTool() {
       if (!imageRef.current || !base64 || !file) throw new Error("No image!");
       // Wait until the <img> has loaded (browsers can be async):
       if (!imageRef.current.complete) {
-        await new Promise(resolve => imageRef.current!.onload = resolve);
+        await new Promise(resolve => { imageRef.current && (imageRef.current.onload = () => resolve(undefined)); });
       }
       const det = await faceapi.detectSingleFace(imageRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks(true);
       if(!det || !det.landmarks) throw new Error("No face detected. Try another image.");
@@ -146,8 +149,9 @@ export default function FaceShapeTool() {
       sessionStorage.setItem(`shape-tool-${session}`, JSON.stringify({imageUrl: base64,shape,shapeScores}));
       setIsLoading(false); setScanActive(false);
       router.push(`/result?session=${session}`);
-    } catch (e:any) {
-      setError(e.message||'Face analysis failed.');
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      setError(errMsg || 'Face analysis failed.');
       setIsLoading(false); setScanActive(false);
     }
   }
