@@ -90,7 +90,7 @@ export default function FaceShapeTool() {
   // Robust, timeout-failsafe model load
   async function ensureModels(timeoutMs = 5000) {
     if (models) return;
-    let timeout: NodeJS.Timeout|number;
+    let timeout: ReturnType<typeof setTimeout> | undefined = undefined;
     try {
       const MODEL_URL = '/models';
       // Start timeout
@@ -98,11 +98,11 @@ export default function FaceShapeTool() {
         faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
         faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL)
       ]);
-      const timeoutPromise = new Promise((_, reject) =>
-        timeout = setTimeout(() => reject(new Error('Model load timed out: /public/models/ missing or not reachable.')), timeoutMs)
-      );
+      const timeoutPromise = new Promise((_, reject) => {
+        timeout = setTimeout(() => reject(new Error('Model load timed out: /public/models/ missing or not reachable.')), timeoutMs);
+      });
       await Promise.race([modelPromise, timeoutPromise]);
-      clearTimeout(timeout as number);
+      if (timeout !== undefined) clearTimeout(timeout);
       setModels(true);
     } catch (e: unknown) {
       const errMsg = e instanceof Error ? e.message : String(e);
