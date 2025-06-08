@@ -1,5 +1,7 @@
 import Image from "next/image";
 import FaceShapeTool from "./FaceShapeTool";
+import Link from 'next/link';
+import { blogs } from './blog/data';
 
 const faceShapes = [
   {
@@ -120,7 +122,7 @@ export default function Home() {
         <nav className="hidden md:flex gap-8 text-[#453670] font-medium text-base">
           <a href="#detect_face_shape" className="hover:text-[#a656c2]">Detect Face Shape</a>
           <a href="#faq" className="hover:text-[#a656c2]">FAQ</a>
-          <a href="/blog" className="hover:text-[#a656c2]">Blog</a>
+          <Link href="/blog" className="hover:text-[#a656c2]">Blog</Link>
         </nav>
       </header>
       {/* Hero/tool area */}
@@ -165,14 +167,17 @@ export default function Home() {
       {/* Blog section */}
       <section className="py-12 px-4 md:px-16 bg-[#fafafe]">
         <h2 className="text-2xl md:text-3xl font-bold text-[#453670] mb-6">Blog</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {blogPreviews.map((b) => (
-            <a key={b.title} href={b.href} className="flex flex-col gap-2 bg-white rounded-xl shadow p-4 hover:shadow-lg transition">
-              <Image src={b.img} width={360} height={200} alt={b.title} className="rounded-lg object-cover" />
-              <div className="font-semibold text-[#a656c2] text-lg">{b.title}</div>
-              <div className="text-[#6c6a74] text-sm">{b.desc}</div>
-            </a>
+        <div className="grid md:grid-cols-2 gap-8">
+          {blogs.map((b) => (
+            <article key={b.slug} className="bg-white rounded-xl shadow p-5 flex flex-col gap-2">
+              <h3 className="text-lg font-semibold text-[#a656c2]">{b.title}</h3>
+              <p className="text-[#6c6a74] text-sm">{b.blurb}</p>
+              <Link className="self-start mt-2 px-3 py-1 bg-[#a656c2] text-white rounded hover:bg-[#453670] text-xs" href={`/blog/${b.slug}`}>Read More</Link>
+            </article>
           ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link href="/blog" className="text-[#a656c2] hover:underline font-medium inline-block">View All Blog Posts</Link>
         </div>
       </section>
       {/* Footer */}
